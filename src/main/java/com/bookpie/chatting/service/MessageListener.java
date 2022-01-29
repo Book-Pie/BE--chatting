@@ -18,9 +18,7 @@ public class MessageListener {
                     groupId = "bookpie")
     private void listen(Message message){
         log.info("sending via kafka listener..");
-        String topic = "/topic/group/";
-        log.info(topic);
         log.info(message.toString());
-        simpMessagingTemplate.convertAndSend(topic,message);
+        simpMessagingTemplate.convertAndSend(message.getTopic(),message);
     }
 }

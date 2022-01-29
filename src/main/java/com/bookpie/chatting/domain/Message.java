@@ -1,15 +1,13 @@
 package com.bookpie.chatting.domain;
 
 import lombok.*;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@ToString
+@Data
+@Document("chatting")
 public class Message {
+    private String topic;
     private String user;
     private String content;
-    private Long roomId;
     private String timestamp;
 }
