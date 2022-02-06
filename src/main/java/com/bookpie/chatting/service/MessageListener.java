@@ -14,6 +14,7 @@ public class MessageListener {
 
     private final SimpMessagingTemplate simpMessagingTemplate;
 
+    /*
     @KafkaListener(topics = "kafka-chat",
                     groupId = "bookpie")
     private void listen(Message message){
@@ -21,4 +22,6 @@ public class MessageListener {
         log.info(message.toString());
         simpMessagingTemplate.convertAndSend(message.getTopic(),message);
     }
+
+     */
 }
