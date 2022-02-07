@@ -3,16 +3,24 @@ package com.bookpie.chatting.controller;
 import com.bookpie.chatting.domain.ChattingRoom;
 import com.bookpie.chatting.domain.Message;
 import com.bookpie.chatting.repository.MessageRepository;
+import com.bookpie.chatting.service.ChattingService;
+import com.bookpie.chatting.utils.ApiUtil;
+import com.bookpie.chatting.utils.ApiUtil.ApiResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import javax.xml.transform.OutputKeys;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static com.bookpie.chatting.utils.ApiUtil.success;
 
 @RestController
 @Slf4j
@@ -23,9 +31,10 @@ public class ChattingController {
 
     private final KafkaTemplate<String, Message> kafkaTemplate;
     private final MessageRepository messageRepository;
+    private final ChattingService chattingService;
 
     @PostMapping("/publish")
-    public void sendMessage(@RequestBody Message message,
+    public ResponseEntity sendMessage(@RequestBody Message message,
                             @RequestParam("topic") String topic,
                             @RequestParam(value = "bookId",required = false) Long bookId,
                             @RequestParam(value = "sellerId",required = false) Long sellerId,
@@ -42,7 +51,8 @@ public class ChattingController {
         try{
             room.addMessage(message);
             messageRepository.save(room);
-            kafkaTemplate.send(topic,message).get();
+            kafkaTemplate.send("/topic/"+topic,message).get();
+            return new ResponseEntity(success(true),HttpStatus.OK);
         }catch (Exception e){
             throw new RuntimeException(e);
         }
@@ -52,4 +62,15 @@ public class ChattingController {
     public ChattingRoom getChattingRoom(@RequestParam("topic") String topic){
         return messageRepository.findChattingRoomByTopic(topic);
     }
+
+    @GetMapping("/list/seller/{id}")
+    public ResponseEntity<ApiResult> getRoomListBySellerId(@PathVariable("id") Long id){
+        return new ResponseEntity<>(success(chattingService.getRoomsBySeller(id)), HttpStatus.OK);
+    }
+
+    @GetMapping("/list/buyer/{id}")
+    public ResponseEntity<ApiResult> getRoomListByBuyerId(@PathVariable("id") Long id){
+        return new ResponseEntity<>(success(chattingService.getRoomsByBuyer(id)),HttpStatus.OK);
+    }
+
 }
