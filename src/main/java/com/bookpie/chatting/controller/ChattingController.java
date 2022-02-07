@@ -58,8 +58,8 @@ public class ChattingController {
     }
 
     @GetMapping("/history")
-    public ChattingRoom getChattingRoom(@RequestParam("topic") String topic){
-        return messageRepository.findChattingRoomByTopic(topic);
+    public ResponseEntity getChattingRoom(@RequestParam("topic") String topic){
+        return new ResponseEntity(success(messageRepository.findChattingRoomByTopic(topic)),HttpStatus.OK);
     }
 
     @GetMapping("/list/seller/{id}")
