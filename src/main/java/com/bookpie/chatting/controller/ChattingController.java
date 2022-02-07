@@ -35,12 +35,11 @@ public class ChattingController {
 
     @PostMapping("/publish")
     public ResponseEntity sendMessage(@RequestBody Message message,
-                            @RequestParam("topic") String topic,
                             @RequestParam(value = "bookId",required = false) Long bookId,
                             @RequestParam(value = "sellerId",required = false) Long sellerId,
                             @RequestParam(value = "buyerId",required = false) Long buyerId){
         message.setTimestamp(LocalDateTime.now().toString());
-
+        String topic = message.getTopic();
         if(!messageRepository.existsChattingRoomByTopic(topic)){
             if(bookId == null | sellerId == null | buyerId == null) throw new IllegalArgumentException("채팅방 생성에 필요한 정보가 부족합니다.");
             ChattingRoom room = new ChattingRoom(topic,bookId,sellerId,buyerId);
@@ -51,7 +50,7 @@ public class ChattingController {
         try{
             room.addMessage(message);
             messageRepository.save(room);
-            kafkaTemplate.send("/topic/"+topic,message).get();
+            kafkaTemplate.send("kafka-chat",message).get();
             return new ResponseEntity(success(true),HttpStatus.OK);
         }catch (Exception e){
             throw new RuntimeException(e);
