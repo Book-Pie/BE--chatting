@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.xml.transform.OutputKeys;
@@ -40,6 +41,9 @@ public class ChattingController {
                             @RequestParam(value = "buyerId",required = false) Long buyerId){
         message.setTimestamp(LocalDateTime.now().toString());
         String topic = message.getTopic();
+        if(!StringUtils.hasText(topic)){
+            throw new IllegalArgumentException("topic을 입력해주세요.");
+        }
         if(!messageRepository.existsChattingRoomByTopic(topic)){
             if(bookId == null | sellerId == null | buyerId == null) throw new IllegalArgumentException("채팅방 생성에 필요한 정보가 부족합니다.");
             ChattingRoom room = new ChattingRoom(topic,bookId,sellerId,buyerId);
