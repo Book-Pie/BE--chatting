@@ -13,7 +13,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/chatting").setAllowedOrigins("http://localhost:3000","http://www.react-dev.p-e.kr/").withSockJS();
+        registry.addEndpoint("/chatting").setAllowedOrigins("http://localhost:3000","http://www.react-dev.p-e.kr/","http://dzjv6uzpvhcwz.cloudfront.net/").withSockJS();
 
     }
 
