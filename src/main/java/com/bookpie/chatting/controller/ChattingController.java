@@ -46,19 +46,10 @@ public class ChattingController {
         }
         if(!messageRepository.existsChattingRoomByTopic(topic)){
             if(bookId == null | sellerId == null | buyerId == null) throw new IllegalArgumentException("채팅방 생성에 필요한 정보가 부족합니다.");
-            ChattingRoom room = new ChattingRoom(topic,bookId,sellerId,buyerId);
-            messageRepository.save(room);
+            chattingService.createRoom(topic,bookId,sellerId,buyerId);
+
         }
-        ChattingRoom room = messageRepository.findChattingRoomByTopic(topic);
-        log.info(room.toString());
-        try{
-            room.addMessage(message);
-            messageRepository.save(room);
-            kafkaTemplate.send("kafka-chat",message).get();
-            return new ResponseEntity(success(true),HttpStatus.OK);
-        }catch (Exception e){
-            throw new RuntimeException(e);
-        }
+        return new ResponseEntity(success(chattingService.sendMessage(topic,message)),HttpStatus.OK);
     }
 
     @GetMapping("/history")
